@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service
+spec:
+  selector:
+    matchLabels:
+      app: service
+  template:
+    metadata:
+      labels:
+        app: service
+        version: "200"
+    spec:
+      containers:
+      - name: service
+        image: wesleywillians/circuit-breaker-example-go:latest
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-error
+spec:
+  selector:
+    matchLabels:
+      app: service
+  template:
+    metadata:
+      labels:
+        app: service
+        version: "504"
+    spec:
+      containers:
+      - name: service
+        image: wesleywillians/circuit-breaker-example-go:error-504
+        ports:
+        - containerPort: 8000
+        env:
+          - name: error
+            value: "yes"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-service
+spec:
+  type: ClusterIP
+  selector:
+    app: service
+  ports:
+  - port: 80
+    targetPort: 8000

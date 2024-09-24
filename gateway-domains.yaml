@@ -1,0 +1,46 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: ingress-gateway-k3s
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: http2
+      hosts:
+        - "*.matheusses"
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nginx-vs
+spec:
+  hosts: 
+  - "v1.matheusses"
+  gateways:
+  - ingress-gateway-k3s
+  http:
+    - route:
+      - destination:
+          host: nginx-service
+          subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nginx-vs-b
+spec:
+  hosts: 
+  - "v2.matheusses"
+  gateways:
+  - ingress-gateway-k3s
+  http:
+    - route:
+      - destination:
+          host: nginx-service
+          subset: v2
+
